@@ -106,6 +106,10 @@ export function initVanillaHorizontalScroll(refs: HorizontalSectionRefs): () => 
     if (enabled) return
     enabled = true
     wrapper.style.position = 'relative'
+    // 모바일(overflow-x: auto)에서 스와이프한 잔여 scrollLeft가 남아있으면 PC 모드의
+    // translateX와 겹쳐서 카드 위치가 이중으로 밀린다. Safari는 overflow가 hidden으로
+    // 바뀐 뒤에도 이 값을 Chrome보다 잘 보존해서 증상이 더 잘 드러난다.
+    viewport.scrollLeft = 0
     measure()
     update()
   }
@@ -114,6 +118,7 @@ export function initVanillaHorizontalScroll(refs: HorizontalSectionRefs): () => 
     if (!enabled) return
     enabled = false
     resetInlineStyles()
+    viewport.scrollLeft = 0
   }
 
   function handleResize() {

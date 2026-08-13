@@ -21,6 +21,11 @@ export function initGsapHorizontalScroll(refs: HorizontalSectionRefs): () => voi
   const mm = gsap.matchMedia()
 
   mm.add(`(min-width: ${PC_MIN_WIDTH}px)`, () => {
+    // 모바일(overflow-x: auto)에서 스와이프한 잔여 scrollLeft가 남아있으면 PC 모드의
+    // translateX와 겹쳐서 카드 위치가 이중으로 밀린다. Safari는 overflow가 hidden으로
+    // 바뀐 뒤에도 이 값을 Chrome보다 잘 보존해서 증상이 더 잘 드러난다.
+    viewport.scrollLeft = 0
+
     const getScrollLength = () => Math.max(0, track.scrollWidth - viewport.clientWidth)
 
     const tween = gsap.to(track, {
@@ -43,6 +48,7 @@ export function initGsapHorizontalScroll(refs: HorizontalSectionRefs): () => voi
     return () => {
       trigger.kill()
       tween.kill()
+      viewport.scrollLeft = 0
     }
   })
 
