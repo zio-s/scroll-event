@@ -32,6 +32,7 @@ src/
   data/
     cards.ts              가로 스크롤 섹션 데이터 (섹션 수, 카드 수 정의)
     dummy.ts               더미 섹션 데이터
+  pageSections.ts          페이지에 실제로 렌더링되는 섹션 순서 (데이터로 정의)
   sections/
     breakpoint.ts            PC/Tablet·Mobile 기준값 (1025px) 하나로 공유
     dummySection.ts          더미 섹션 렌더링
@@ -97,6 +98,8 @@ src/
 
 ## 섹션 수 / 카드 수 추가하는 방법
 
+처음엔 섹션을 추가하려면 `main.ts`에 `buildHorizontalSection` → `init...HorizontalScroll` 호출을 직접 붙여야 했는데, DOM append 순서와 엔진 초기화 순서까지 신경 써야 해서 "데이터만 추가하면 된다"는 취지에 안 맞았습니다. [src/pageSections.ts](src/pageSections.ts) 하나로 정리해서, 이제는 전부 데이터 추가만으로 끝납니다 — `main.ts`는 건드릴 필요 없습니다.
+
 - **카드 추가**: [src/data/cards.ts](src/data/cards.ts)의 `horizontalSections` 배열에서 각 섹션의 `cards` 배열 길이만 늘리면 됩니다(`buildCards('a', 9)`의 숫자를 바꾸거나 `CardData` 객체를 직접 추가). 카드 레이아웃이 `flex: 0 0 clamp(...)` 기반이라 개수가 늘어나도 깨지지 않고, 늘어난 만큼 스크롤 거리만 자동으로 늘어납니다(Vanilla/GSAP 둘 다 매 순간 `track.scrollWidth`를 다시 잽니다).
-- **섹션 추가**: `horizontalSections` 배열에 새 `HorizontalSectionData` 객체를 추가하고, [src/main.ts](src/main.ts)에서 `buildHorizontalSection` → `init...HorizontalScroll` 호출을 한 세트 더 붙이면 됩니다(Vanilla/GSAP 중 어떤 방식을 쓸지는 자유입니다).
-- **더미 섹션 추가**: [src/data/dummy.ts](src/data/dummy.ts)의 `dummySections` 배열에 항목을 추가하고 `main.ts`에서 원하는 위치에 `renderDummySection(...)`을 호출하면 됩니다.
+- **섹션 추가**: `horizontalSections`(또는 새 데이터)에 항목을 추가하고, [src/pageSections.ts](src/pageSections.ts) 배열에 `{ type: 'horizontal', engine: 'vanilla' | 'gsap', data: ... }` 한 줄만 원하는 위치에 넣으면 됩니다. 페이지에 렌더링되는 순서 = 이 배열의 순서 그대로입니다.
+- **더미 섹션 추가**: [src/data/dummy.ts](src/data/dummy.ts)의 `dummySections` 배열에 항목을 추가하고, `pageSections.ts`에 `{ type: 'dummy', data: ... }`를 원하는 위치에 넣으면 됩니다.
