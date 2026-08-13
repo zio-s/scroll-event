@@ -79,7 +79,3 @@ src/
 - **카드 추가**: [src/data/cards.ts](src/data/cards.ts)의 `horizontalSections` 배열에서 각 섹션의 `cards` 배열 길이만 늘리면 됩니다(`buildCards('a', 9)`의 숫자를 바꾸거나 `CardData` 객체를 직접 추가). 카드 레이아웃은 `flex: 0 0 clamp(...)` 기반이라 개수가 늘어나도 깨지지 않고, 늘어난 만큼 스크롤 거리만 자동으로 늘어납니다(두 엔진 모두 `track.scrollWidth`를 매 순간 다시 측정합니다).
 - **섹션 추가**: `horizontalSections` 배열 자체에 새 `HorizontalSectionData` 객체를 추가하고, [src/main.ts](src/main.ts)에서 `buildHorizontalSection` → `init...HorizontalScroll` 호출을 한 세트 더 추가하면 됩니다(어떤 엔진을 쓸지는 자유롭게 선택 가능).
 - **더미 섹션 추가**: [src/data/dummy.ts](src/data/dummy.ts)의 `dummySections` 배열에 항목을 추가하고 `main.ts`에서 원하는 위치에 `renderDummySection(...)`을 호출하면 됩니다.
-
-## 브라우저 지원
-
-Chrome / Edge / Firefox 최신 버전에서 확인했습니다. Safari는 `position: sticky`를 사용하지 않도록 설계해 알려진 `sticky + overflow` 렌더링 이슈를 피했지만, 실제 최신 Safari에서의 최종 수동 확인은 제출 전 별도로 진행하는 것을 권장합니다.
