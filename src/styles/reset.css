@@ -1,0 +1,39 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background: var(--color-bg);
+  line-height: 1.5;
+  /* 가로 스크롤 섹션의 fixed 카드 트랙이 화면 밖으로 살짝 넘칠 때 페이지 전체 가로 스크롤바가
+     생기는 것을 방지합니다. 카드 리스트 자체는 overflow:hidden 뷰포트로 별도 클리핑됩니다. */
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}

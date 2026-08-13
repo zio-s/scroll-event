@@ -1,0 +1,9 @@
+/*
+  콘텐츠 최대 폭은 1400px, 그 바깥에 padding이 항상 별도로 유지되어야 하므로
+  max-width가 아니라 clamp()로 "뷰포트 - padding*2"와 "1400px" 중 작은 값을 사용합니다.
+  이렇게 하면 padding이 1400px 안쪽으로 파고들지 않습니다.
+*/
+.container {
+  width: min(var(--container-max), calc(100% - var(--container-pad) * 2));
+  margin-inline: auto;
+}

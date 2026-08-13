@@ -1,0 +1,103 @@
+/* wrapper: 문서 흐름 상의 "스크롤 여유 공간"을 갖는 컨테이너. 높이는 JS(vanilla)가 인라인으로
+   설정하거나, GSAP ScrollTrigger가 자동 생성하는 pin-spacer가 대신 담당합니다. */
+.h-scroll-wrapper {
+  position: relative;
+}
+
+/* pin: 실제로 화면에 고정(pin)되는 블록. 엔진(JS)이 static/fixed/absolute 상태를 전환합니다. */
+.h-scroll-pin {
+  background: var(--color-bg);
+  padding-block: 48px;
+}
+
+.h-scroll-engine-badge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #fff;
+  background: #14161a;
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin-bottom: 14px;
+}
+
+.h-scroll-title {
+  font-size: clamp(24px, 3vw, 36px);
+  font-weight: 700;
+}
+
+.h-scroll-desc {
+  margin-top: 8px;
+  color: var(--color-text-muted);
+  max-width: 520px;
+}
+
+.h-scroll-header {
+  margin-bottom: 32px;
+}
+
+/* PC: overflow hidden 뷰포트 안에서 track을 JS가 translateX로 움직입니다. */
+.h-scroll-viewport {
+  overflow: hidden;
+}
+
+.h-scroll-track {
+  display: flex;
+  gap: 20px;
+  will-change: transform;
+}
+
+.h-card {
+  flex: 0 0 clamp(220px, 24vw, 320px);
+}
+
+.h-card__media {
+  aspect-ratio: 4 / 3;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 56px;
+}
+
+.h-card__eyebrow {
+  margin-top: 16px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.h-card__title {
+  margin-top: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Tablet / Mobile (1024px 이하): 스크롤 하이재킹을 끄고 네이티브 가로 스와이프 리스트로 전환합니다.
+   이유는 README '반응형 대응 방식' 참고. JS도 이 구간에서는 pin 로직을 아예 실행하지 않습니다. */
+@media (max-width: 1024px) {
+  .h-scroll-pin {
+    padding-block: 32px;
+  }
+
+  .h-scroll-viewport {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+  }
+
+  .h-scroll-viewport::-webkit-scrollbar {
+    display: none;
+  }
+
+  .h-card {
+    flex-basis: 72vw;
+    scroll-snap-align: start;
+  }
+}
