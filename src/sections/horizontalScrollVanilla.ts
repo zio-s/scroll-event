@@ -10,7 +10,9 @@ const RESIZE_DEBOUNCE_MS = 150
 //
 // before(위) / pinned(고정) / after(아래) 세 구간으로 나눠서 pin의 position을
 // absolute → fixed → absolute로 바꾼다. triggerY는 "wrapper 상단이 뷰포트에 닿는 시점"이
-// 아니라 "pin 세로 중앙 = 뷰포트 세로 중앙"이 되는 시점으로 계산한다 (요구사항 1-2).
+// 아니라 "카드 로우(.h-scroll-viewport) 세로 중앙 = 뷰포트 세로 중앙"이 되는 시점으로
+// 계산한다 (요구사항 1-2). pin 박스 전체(타이틀 포함)의 중앙이 아니라 카드 로우 자체의
+// 중앙을 기준으로 잡아서, 타이틀 높이만큼 카드가 화면 중앙보다 아래로 밀리지 않게 한다.
 export function initVanillaHorizontalScroll(refs: HorizontalSectionRefs): () => void {
   const { wrapper, pin, viewport, track } = refs
 
@@ -18,6 +20,10 @@ export function initVanillaHorizontalScroll(refs: HorizontalSectionRefs): () => 
   let scrollLength = 0
   let triggerY = 0
   let releaseY = 0
+  // pin 박스 "전체"가 아니라 카드 로우(.h-scroll-viewport)의 세로 중앙을 화면 중앙에
+  // 맞추기 위한 오프셋. pin 상단부터 카드 로우 중앙까지의 거리(px) — 타이틀 높이가
+  // 포함되므로 pin 박스 전체 높이의 절반과는 다르다.
+  let centerOffset = 0
   let rafId: number | null = null
   let resizeTimer: number | undefined
   let currentState: 'before' | 'pinned' | 'after' | null = null
@@ -45,9 +51,13 @@ export function initVanillaHorizontalScroll(refs: HorizontalSectionRefs): () => 
     const pinHeight = pin.offsetHeight
     scrollLength = Math.max(0, track.scrollWidth - viewport.clientWidth)
 
+    const pinRect = pin.getBoundingClientRect()
+    const viewportRect = viewport.getBoundingClientRect()
+    centerOffset = viewportRect.top - pinRect.top + viewportRect.height / 2
+
     const wrapperTop = wrapper.getBoundingClientRect().top + window.scrollY
     const viewportH = window.innerHeight
-    triggerY = wrapperTop + pinHeight / 2 - viewportH / 2
+    triggerY = wrapperTop + centerOffset - viewportH / 2
     releaseY = triggerY + scrollLength
 
     wrapper.style.height = `${pinHeight + scrollLength}px`
@@ -79,11 +89,13 @@ export function initVanillaHorizontalScroll(refs: HorizontalSectionRefs): () => 
     } else if (scrollY <= releaseY) {
       if (currentState !== 'pinned') {
         pin.style.position = 'fixed'
-        pin.style.top = '50%'
+        // 카드 로우(.h-scroll-viewport) 중앙이 화면 중앙(50vh)에 오도록 pin의 top을
+        // 직접 계산한다. 타이틀 높이만큼 pin은 화면 중앙보다 위쪽에서 시작된다.
+        pin.style.top = `calc(50% - ${centerOffset}px)`
         pin.style.left = '0'
         pin.style.right = '0'
         pin.style.width = '100%'
-        pin.style.transform = 'translateY(-50%)'
+        pin.style.transform = ''
         currentState = 'pinned'
       }
       // translateX만 진행률에 따라 매 프레임 바뀌어야 하는 유일한 값이다.

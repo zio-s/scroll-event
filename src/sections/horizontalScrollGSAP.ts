@@ -6,10 +6,13 @@ import { PC_MIN_WIDTH } from './breakpoint'
 gsap.registerPlugin(ScrollTrigger)
 
 // horizontalScrollVanilla.ts와 같은 결과를 GSAP ScrollTrigger로 만든다.
-// start: "center center" 하나로 vanilla 쪽 triggerY 계산식이 통째로 필요 없어지고,
 // end를 함수로 넘기고 invalidateOnRefresh를 켜두면 리사이즈 재계산도 알아서 된다.
 // gsap.matchMedia()로 PC(1025px~)에서만 켜고, 벗어나면 아래 return 함수가 pin/transform을
 // 원상복구해서 CSS 네이티브 스와이프로 넘어간다.
+//
+// start는 "center center"(트리거 박스 전체 중앙) 대신, 카드 로우(.h-scroll-viewport)
+// 자체의 세로 중앙이 화면 중앙에 오도록 pin 상단 기준 오프셋을 직접 계산해서 넘긴다.
+// 그렇지 않으면 타이틀 높이만큼 카드가 화면 중앙보다 아래로 밀려 보인다.
 export function initGsapHorizontalScroll(refs: HorizontalSectionRefs): () => void {
   const { wrapper, pin, viewport, track } = refs
   const mm = gsap.matchMedia()
@@ -27,10 +30,17 @@ export function initGsapHorizontalScroll(refs: HorizontalSectionRefs): () => voi
       ease: 'none',
     })
 
+    const getStart = () => {
+      const pinRect = pin.getBoundingClientRect()
+      const viewportRect = viewport.getBoundingClientRect()
+      const centerOffset = viewportRect.top - pinRect.top + viewportRect.height / 2
+      return `top+=${centerOffset} center`
+    }
+
     const trigger = ScrollTrigger.create({
       trigger: wrapper,
       pin,
-      start: 'center center',
+      start: getStart,
       end: () => `+=${getScrollLength()}`,
       scrub: true,
       invalidateOnRefresh: true,
