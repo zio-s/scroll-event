@@ -20,6 +20,7 @@ export function initVanillaHorizontalScroll(refs: HorizontalSectionRefs): () => 
   let releaseY = 0
   let rafId: number | null = null
   let resizeTimer: number | undefined
+  let currentState: 'before' | 'pinned' | 'after' | null = null
 
   const isPC = () => window.innerWidth >= PC_MIN_WIDTH
 
@@ -50,37 +51,55 @@ export function initVanillaHorizontalScroll(refs: HorizontalSectionRefs): () => 
     releaseY = triggerY + scrollLength
 
     wrapper.style.height = `${pinHeight + scrollLength}px`
+
+    // measure()가 pin을 static으로 되돌려놨으므로, 버킷이 그대로라도 다음 update()가
+    // 실제 스타일을 다시 적용하도록 강제한다.
+    currentState = null
   }
 
+  // pin의 position/top/left/width는 before → pinned → after 세 구간을 오가며 "상태가
+  // 바뀔 때"만 새로 쓴다. 프레임마다 값이 같은데도 무조건 다시 쓰면(특히 before 구간,
+  // 즉 섹션 근처에 가지도 않았을 때조차) 매 스크롤 프레임마다 불필요한 style 재계산이
+  // 걸려서 휠 스크롤처럼 짧은 시간에 이벤트가 몰릴 때 프레임이 튄다.
   function update() {
     if (!enabled) return
     const scrollY = window.scrollY
 
     if (scrollY < triggerY) {
-      pin.style.position = 'absolute'
-      pin.style.top = '0'
-      pin.style.left = '0'
-      pin.style.right = '0'
-      pin.style.width = ''
-      pin.style.transform = ''
-      track.style.transform = 'translateX(0px)'
+      if (currentState !== 'before') {
+        pin.style.position = 'absolute'
+        pin.style.top = '0'
+        pin.style.left = '0'
+        pin.style.right = '0'
+        pin.style.width = ''
+        pin.style.transform = ''
+        track.style.transform = 'translateX(0px)'
+        currentState = 'before'
+      }
     } else if (scrollY <= releaseY) {
+      if (currentState !== 'pinned') {
+        pin.style.position = 'fixed'
+        pin.style.top = '50%'
+        pin.style.left = '0'
+        pin.style.right = '0'
+        pin.style.width = '100%'
+        pin.style.transform = 'translateY(-50%)'
+        currentState = 'pinned'
+      }
+      // translateX만 진행률에 따라 매 프레임 바뀌어야 하는 유일한 값이다.
       const progress = scrollLength === 0 ? 0 : (scrollY - triggerY) / scrollLength
-      pin.style.position = 'fixed'
-      pin.style.top = '50%'
-      pin.style.left = '0'
-      pin.style.right = '0'
-      pin.style.width = '100%'
-      pin.style.transform = 'translateY(-50%)'
       track.style.transform = `translateX(${-progress * scrollLength}px)`
     } else {
-      pin.style.position = 'absolute'
-      pin.style.top = `${scrollLength}px`
-      pin.style.left = '0'
-      pin.style.right = '0'
-      pin.style.width = ''
-      pin.style.transform = ''
-      track.style.transform = `translateX(${-scrollLength}px)`
+      if (currentState !== 'after') {
+        pin.style.position = 'absolute'
+        pin.style.top = `${scrollLength}px`
+        pin.style.left = '0'
+        pin.style.right = '0'
+        pin.style.width = ''
+        pin.style.transform = ''
+        track.style.transform = `translateX(${-scrollLength}px)`
+        currentState = 'after'
+      }
     }
   }
 
@@ -109,6 +128,7 @@ export function initVanillaHorizontalScroll(refs: HorizontalSectionRefs): () => 
     enabled = false
     resetInlineStyles()
     viewport.scrollLeft = 0
+    currentState = null
   }
 
   function handleResize() {
