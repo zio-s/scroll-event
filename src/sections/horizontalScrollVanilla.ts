@@ -1,6 +1,6 @@
 import type { HorizontalSectionRefs } from './horizontalMarkup'
+import { PC_MIN_WIDTH } from './breakpoint'
 
-const PC_MIN_WIDTH = 1025
 const RESIZE_DEBOUNCE_MS = 150
 
 /**

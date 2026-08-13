@@ -1,10 +1,9 @@
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import type { HorizontalSectionRefs } from './horizontalMarkup'
+import { PC_MIN_WIDTH } from './breakpoint'
 
 gsap.registerPlugin(ScrollTrigger)
-
-const PC_MIN_WIDTH = 1025
 
 /**
  * GSAP ScrollTrigger로 구현한 동일 인터랙션.

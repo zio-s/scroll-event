@@ -5,6 +5,7 @@ import { renderDummySection } from './sections/dummySection'
 import { buildHorizontalSection } from './sections/horizontalMarkup'
 import { initVanillaHorizontalScroll } from './sections/horizontalScrollVanilla'
 import { initGsapHorizontalScroll } from './sections/horizontalScrollGSAP'
+import { enableDragToScroll } from './sections/dragScroll'
 
 const app = document.querySelector<HTMLDivElement>('#app')
 if (!app) throw new Error('#app root element not found')
@@ -25,3 +26,7 @@ app.append(
 // 이뤄져야 정확하므로, DOM에 전부 append한 뒤 순서대로 초기화한다.
 initVanillaHorizontalScroll(sectionA)
 initGsapHorizontalScroll(sectionB)
+
+// Tablet/Mobile에서 마우스 클릭+드래그로도 카드 리스트를 스크롤할 수 있게 한다.
+enableDragToScroll(sectionA.viewport)
+enableDragToScroll(sectionB.viewport)

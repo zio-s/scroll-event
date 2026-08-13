@@ -90,10 +90,18 @@
     -webkit-overflow-scrolling: touch;
     scroll-snap-type: x proximity;
     scrollbar-width: none;
+    cursor: grab;
   }
 
   .h-scroll-viewport::-webkit-scrollbar {
     display: none;
+  }
+
+  /* 마우스 클릭+드래그 스크롤 중(dragScroll.ts): 스냅/커서/텍스트 선택을 잠시 끈다. */
+  .h-scroll-viewport.is-dragging {
+    cursor: grabbing;
+    scroll-snap-type: none;
+    user-select: none;
   }
 
   .h-card {
