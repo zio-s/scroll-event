@@ -18,7 +18,7 @@ export function buildHorizontalSection(data: HorizontalSectionData): HorizontalS
   const header = document.createElement('div')
   header.className = 'h-scroll-header container'
   header.innerHTML = `
-    <span class="h-scroll-engine-badge">${data.eyebrow}</span>
+    <span class="h-scroll-badge">${data.eyebrow}</span>
     <h2 class="h-scroll-title">${data.title}</h2>
     <p class="h-scroll-desc">${data.description}</p>
   `

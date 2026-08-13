@@ -5,16 +5,11 @@ import { PC_MIN_WIDTH } from './breakpoint'
 
 gsap.registerPlugin(ScrollTrigger)
 
-/**
- * GSAP ScrollTrigger로 구현한 동일 인터랙션.
- *
- * - pin + start: "center center" 옵션이 "섹션의 세로 중앙이 뷰포트 중앙에 닿는 시점에 고정"을
- *   그대로 지원해서, vanilla 버전에서 직접 계산했던 triggerY 공식이 필요 없다.
- * - end에 스크롤 진행 거리를 함수로 넘기고 invalidateOnRefresh: true를 켜면 리사이즈 시
- *   자동으로 재계산된다.
- * - gsap.matchMedia()로 PC(1025px 이상)에서만 활성화하고, Tablet/Mobile로 전환되면
- *   자동으로 pin/트랜스폼을 되돌려 CSS 기반 네이티브 스와이프로 자연스럽게 넘어간다.
- */
+// horizontalScrollVanilla.ts와 같은 결과를 GSAP ScrollTrigger로 만든다.
+// start: "center center" 하나로 vanilla 쪽 triggerY 계산식이 통째로 필요 없어지고,
+// end를 함수로 넘기고 invalidateOnRefresh를 켜두면 리사이즈 재계산도 알아서 된다.
+// gsap.matchMedia()로 PC(1025px~)에서만 켜고, 벗어나면 아래 return 함수가 pin/transform을
+// 원상복구해서 CSS 네이티브 스와이프로 넘어간다.
 export function initGsapHorizontalScroll(refs: HorizontalSectionRefs): () => void {
   const { wrapper, pin, viewport, track } = refs
   const mm = gsap.matchMedia()

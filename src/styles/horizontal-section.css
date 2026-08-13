@@ -4,13 +4,13 @@
   position: relative;
 }
 
-/* pin: 실제로 화면에 고정(pin)되는 블록. 엔진(JS)이 static/fixed/absolute 상태를 전환합니다. */
+/* pin: 실제로 화면에 고정되는 블록. static/fixed/absolute 전환은 JS 쪽에서 처리한다. */
 .h-scroll-pin {
   background: var(--color-bg);
   padding-block: 48px;
 }
 
-.h-scroll-engine-badge {
+.h-scroll-badge {
   display: inline-block;
   font-size: 12px;
   font-weight: 700;

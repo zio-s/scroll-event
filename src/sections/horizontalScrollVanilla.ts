@@ -3,24 +3,14 @@ import { PC_MIN_WIDTH } from './breakpoint'
 
 const RESIZE_DEBOUNCE_MS = 150
 
-/**
- * 순수 JS로 구현한 "센터 트리거 가로 스크롤 하이재킹".
- *
- * 핵심 아이디어: wheel/touch 이벤트를 가로채서 preventDefault 하는 대신, 문서 흐름에
- * 스크롤 여유 공간(wrapper.height = pinHeight + scrollLength)을 확보해두고, 그 구간을
- * 지나는 동안 pin 요소를 fixed로 고정한 채 scrollY 변화량을 카드 트랙의 translateX로
- * 매핑한다. 이렇게 하면 트랙패드 관성 스크롤, 일반 휠, 키보드 스크롤이 모두 별도 처리
- * 없이 그대로 자연스럽게 동작한다.
- *
- * 3단계 상태:
- *  - before : scrollY < triggerY  → pin은 wrapper 상단에 일반 배치(absolute top:0)
- *  - pinned : triggerY <= scrollY <= releaseY → pin을 fixed(top:50%)로 화면 중앙에 고정,
- *             (scrollY - triggerY)를 진행률로 환산해 카드 트랙을 가로로 이동
- *  - after  : scrollY > releaseY → pin은 wrapper 하단에 배치되어 다음 콘텐츠로 자연스럽게 이어짐
- *
- * triggerY는 "wrapper 상단이 뷰포트에 닿는 시점"이 아니라 "pin의 세로 중앙이 뷰포트
- * 세로 중앙과 일치하는 시점"으로 계산한다(과제 1-2 트리거 조건).
- */
+// wheel/touch에 preventDefault를 거는 대신, 문서에 스크롤 여유 공간(wrapper 높이 =
+// pin 높이 + 카드 이동 거리)을 만들어두고 그 구간을 지나는 동안 pin을 fixed로 고정한 채
+// scrollY 변화량을 카드 트랙의 translateX로 옮겨 붓는 방식. 네이티브 스크롤 이벤트만
+// 보기 때문에 휠이든 트랙패드든 따로 분기할 필요가 없다.
+//
+// before(위) / pinned(고정) / after(아래) 세 구간으로 나눠서 pin의 position을
+// absolute → fixed → absolute로 바꾼다. triggerY는 "wrapper 상단이 뷰포트에 닿는 시점"이
+// 아니라 "pin 세로 중앙 = 뷰포트 세로 중앙"이 되는 시점으로 계산한다 (요구사항 1-2).
 export function initVanillaHorizontalScroll(refs: HorizontalSectionRefs): () => void {
   const { wrapper, pin, viewport, track } = refs
 
