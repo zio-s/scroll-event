@@ -5,7 +5,7 @@
       <p class="dummy-section__body">${e.body}</p>
     </div>
   `,t}function o(e){let t=document.createElement(`section`);t.className=`h-scroll-wrapper`,t.id=e.id;let n=document.createElement(`div`);n.className=`h-scroll-pin`;let r=document.createElement(`div`);r.className=`h-scroll-header container`,r.innerHTML=`
-    <span class="h-scroll-engine-badge">${e.eyebrow}</span>
+    <span class="h-scroll-badge">${e.eyebrow}</span>
     <h2 class="h-scroll-title">${e.title}</h2>
     <p class="h-scroll-desc">${e.description}</p>
   `;let i=document.createElement(`div`);i.className=`h-scroll-viewport container`;let a=document.createElement(`ul`);return a.className=`h-scroll-track`,a.innerHTML=e.cards.map(e=>`
