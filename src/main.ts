@@ -6,6 +6,9 @@ import { buildHorizontalSection } from './sections/horizontalMarkup'
 import { initVanillaHorizontalScroll } from './sections/horizontalScrollVanilla'
 import { initGsapHorizontalScroll } from './sections/horizontalScrollGSAP'
 import { enableDragToScroll } from './sections/dragScroll'
+import { initSmoothScroll } from './sections/smoothScroll'
+
+initSmoothScroll()
 
 const app = document.querySelector<HTMLDivElement>('#app')
 if (!app) throw new Error('#app root element not found')
