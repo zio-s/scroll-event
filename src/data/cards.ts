@@ -67,4 +67,18 @@ export const scrollGroups: ScrollGroupData[] = [
     description: '새로운 가치를 만드는 이야기를 전해드립니다.',
     cards: buildCards('news', '기업 소식', 6),
   },
+  {
+    id: 'group-section-test',
+    eyebrow: 'Section',
+    title: '섹션 추가 사례',
+    description: '섹션 10개 이상 추가를 하여도 문제가 없음을 확인 하였습니다.',
+    cards: buildCards('section', '섹션 추가', 3),
+  },
+  {
+    id: 'group-cards-test',
+    eyebrow: 'Cards',
+    title: '카드 추가 사례',
+    description: '섹션의 카드가 10장 이상인 경우 테스트 문제가 없음을 확인 하였습니다.',
+    cards: buildCards('cards', '카드 추가 15개', 15),
+  },
 ]
