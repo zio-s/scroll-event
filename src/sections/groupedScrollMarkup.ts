@@ -22,11 +22,9 @@ function query<T extends HTMLElement>(root: ParentNode, selector: string): T {
   return el
 }
 
-// 카드 전체를 <a>로 감싼다 — 실제 서비스라면 카드 클릭 시 상세 페이지로 이동하는
-// 구조를 그대로 보여주기 위해서다. 이 데모에는 연결할 상세 페이지가 없어서
-// href="#"로 두고, buildGroupedScrollSection에서 클릭 시 페이지 최상단으로
-// 튀는 기본 동작만 막는다. <li>였을 때는 키보드 탭 순서에 아예 들어오지 않았는데,
-// <a>가 되면서 탭 포커스 + 스크린리더 접근성 이름(aria-label)을 갖게 된다.
+// 카드를 <a>로 감싸서 실제 서비스의 "카드 클릭 → 상세 페이지" 구조를 보여준다.
+// 연결할 상세 페이지가 없어 href="#"만 두고 기본 이동은 아래서 막는다. <li>만
+// 있을 땐 탭 순서에 안 들어왔는데 <a>라 탭 포커스 + aria-label이 생긴다.
 function cardMarkup(card: ScrollGroupData['cards'][number]): string {
   return `
     <li class="h-card">
@@ -56,19 +54,9 @@ function sectionMarkup(group: ScrollGroupData): string {
   `
 }
 
-/**
- * 하나의 가로 스크롤 하이재킹 안에 여러 섹션(카드 그룹)이 이어지는 구조를 만든다.
- * 타이틀은 각 섹션에 딸린 콘텐츠지만, 자기 섹션이 지나가는 동안은 좌측 padding
- * 라인에 고정되어 있다가 섹션이 끝날 때만 카드와 함께 화면 밖으로 밀려난다(카운터
- * 스크롤은 groupedScrollGSAP.ts가 담당).
- *
- * - PC: 모든 섹션이 하나의 연속된 트랙으로 이어져서 통째로 translateX 된다.
- *   뷰포트는 화면 끝까지 꽉 차고(overflow:hidden), 시작 위치만 트랙의 padding으로
- *   맞춘다 — 그래야 카드가 padding 안쪽 여백으로 사라지지 않고 화면 가장자리까지
- *   찬 채로 스크롤된다.
- * - Tablet/Mobile: 섹션이 세로로 쌓이고, 섹션 안 카드 리스트는 각자 독립적인
- *   가로 스와이프가 된다(레이아웃만 다를 뿐 마크업은 동일).
- */
+// 여러 섹션이 이어지는 가로 스크롤 마크업. PC는 트랙 전체가 통째로 translateX,
+// Tablet/Mobile은 섹션별 세로 스택 + 독립 가로 스와이프(마크업은 동일, 레이아웃만
+// 다름). 카운터 스크롤 로직은 groupedScrollGSAP.ts.
 export function buildGroupedScrollSection(id: string, groups: ScrollGroupData[]): GroupedScrollRefs {
   const wrapper = document.createElement('section')
   wrapper.className = 'h-scroll-wrapper'

@@ -5,15 +5,10 @@ import { PC_MIN_WIDTH } from './breakpoint'
 
 gsap.registerPlugin(ScrollTrigger)
 
-/**
- * 네이티브 스크롤(특히 마우스 휠 한 노치)은 그 자체로 뚝뚝 끊겨서 들어온다.
- * Lenis가 그 입력을 이징으로 보간해서 실제 window 스크롤 위치를 부드럽게
- * 갱신해주기 때문에, GSAP 엔진은 코드를 안 건드리고 scrollY를 그대로
- * 읽기만 해도 부드러워진다 (참고 사이트도 같은 조합을 쓴다).
- *
- * Tablet/Mobile은 네이티브 터치 스크롤이 이미 자연스럽고, 카드 리스트 자체도
- * overflow-x 스크롤이라 Lenis의 세로 스크롤 보정과 맞물릴 필요가 없어서 끈다.
- */
+// 마우스 휠 입력은 그 자체로 뚝뚝 끊겨서 들어온다. Lenis가 이걸 이징으로 보간해서
+// window 스크롤 위치를 부드럽게 갱신해주니, GSAP는 scrollY만 그대로 읽으면 된다
+// (참고 사이트도 같은 조합). Tablet/Mobile은 네이티브 터치 스크롤로 이미 충분하고
+// 카드 리스트도 overflow-x라 여기서는 꺼둔다.
 export function initSmoothScroll() {
   let lenis: Lenis | null = null
   let rafId: number | null = null
