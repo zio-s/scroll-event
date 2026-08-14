@@ -29,10 +29,22 @@ export function initGroupedScroll(refs: GroupedScrollRefs): () => void {
     // 담고 있으면, "내용에 맞춰 줄어드는 폭"을 브라우저마다 다르게 계산해서(Safari가
     // 특히) 섹션 사이에 의도치 않은 간격이 생긴다. 카드 로우의 실제 렌더링 폭을 재서
     // 섹션 박스 폭에 그대로 못박아 이 차이를 없앤다.
+    //
+    // cardsEl(.h-scroll-section-cards) 자신의 getBoundingClientRect()는 쓰지 않는다 —
+    // 이 요소는 매 refresh마다 우리가 직접 width를 씌웠다 지웠다 하는 대상이라,
+    // Safari에서는 style.width=''로 지운 직후 같은 틱에 다시 측정해도 이전에 씌운
+    // 값이 완전히 반영 해제되기 전 상태를 읽어와 refresh를 거듭할수록 값이 부풀려질
+    // 수 있다. 대신 우리가 폭을 건드린 적 없는 개별 .h-card들의 첫 번째~마지막
+    // 좌우 끝 좌표로 직접 계산하면 이전 강제값이 남아있을 여지가 없다.
     function lockSectionWidths() {
       groups.forEach((g) => {
         g.el.style.width = ''
-        g.el.style.width = `${g.cardsEl.scrollWidth}px`
+        const cards = g.cardsEl.querySelectorAll<HTMLElement>('.h-card')
+        const first = cards[0]
+        const last = cards[cards.length - 1]
+        if (!first || !last) return
+        const width = last.getBoundingClientRect().right - first.getBoundingClientRect().left
+        g.el.style.width = `${width}px`
       })
     }
 
@@ -59,7 +71,27 @@ export function initGroupedScroll(refs: GroupedScrollRefs): () => void {
       })
     }
 
-    const getScrollLength = () => Math.max(0, track.scrollWidth - viewport.clientWidth)
+    // scrollWidth/clientWidth는 정수로 반올림된 값이라, 카드 15장 + 큰 gap을 거치며
+    // 브라우저마다(특히 Safari) 반올림 오차가 누적되면 전체 스크롤 거리 자체가 몇 px
+    // 어긋나 "카드는 끝났는데 스크롤은 더 남아있는" 현상이 생긴다.
+    //
+    // track 자신의 getBoundingClientRect().width는 쓸 수 없다 — track은 block 레벨
+    // display:flex라 자식이 넘치더라도(overflow) 박스 자체 폭은 그냥 부모(viewport)
+    // 폭을 그대로 채운다(width:auto의 기본 동작). 대신 "마지막 카드의 오른쪽 끝"과
+    // "track의 왼쪽 끝"을 직접 재서 그 차이를 쓴다 — 이 둘은 같은 translateX 아래
+    // 있어서 현재 변형(transform) 값과 무관하게 항상 같은 결과가 나온다(상쇄).
+    const getScrollLength = () => {
+      const trackRect = track.getBoundingClientRect()
+      const viewportRect = viewport.getBoundingClientRect()
+      const lastGroup = groups[groups.length - 1]
+      const cards = lastGroup.cardsEl.querySelectorAll<HTMLElement>('.h-card')
+      const lastCard = cards[cards.length - 1]
+      if (!lastCard) return 0
+      const lastCardRect = lastCard.getBoundingClientRect()
+      const trackPaddingRight = parseFloat(getComputedStyle(track).paddingRight) || 0
+      const naturalContentRight = lastCardRect.right - trackRect.left + trackPaddingRight
+      return Math.max(0, naturalContentRight - viewportRect.width)
+    }
 
     const tween = gsap.to(track, {
       x: () => -getScrollLength(),
