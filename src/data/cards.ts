@@ -7,7 +7,10 @@ export interface CardData {
   colorTo: string
 }
 
-export interface HorizontalSectionData {
+// 하나의 가로 스크롤 하이재킹 안에서 이어지는 "섹션" 하나. 여러 개가 순서대로
+// 이어지고(섹션1 카드들 → 섹션2 카드들 → ...), 각자 자기 카드 구간이 지나가는
+// 동안에만 타이틀이 좌측에 고정된다.
+export interface ScrollGroupData {
   id: string
   eyebrow: string
   title: string
@@ -24,15 +27,15 @@ const PALETTE: Array<[string, string]> = [
   ['#f5e2a8', '#e8c766'],
 ]
 
-const EMOJIS = ['🖨️', '👷', '⚖️', '🏥', '🏭', '🎓', '🏦', '🚚', '🛒']
+const EMOJIS = ['🖨️', '👷', '⚖️', '🏥', '🏭', '🎓', '🏦', '🚚', '🛒', '💼']
 
-function buildCards(prefix: string, count: number): CardData[] {
+function buildCards(prefix: string, label: string, count: number): CardData[] {
   return Array.from({ length: count }, (_, i) => {
     const [colorFrom, colorTo] = PALETTE[i % PALETTE.length]
     return {
       id: `${prefix}-${i + 1}`,
       eyebrow: `2026.0${(i % 9) + 1}.1${i}`,
-      title: `${prefix === 'a' ? '산업별' : '고객사'} 도입 사례 ${i + 1} — 더미 타이틀 텍스트가 두 줄까지 노출됩니다`,
+      title: `${label} ${i + 1} — 더미 타이틀 텍스트가 두 줄까지 노출됩니다`,
       emoji: EMOJIS[i % EMOJIS.length],
       colorFrom,
       colorTo,
@@ -40,21 +43,28 @@ function buildCards(prefix: string, count: number): CardData[] {
   })
 }
 
-// 섹션 수/카드 수는 이 배열만 늘리면 레이아웃이 자동으로 대응합니다.
-// README '섹션 수, 카드 수 추가하는 방법' 참고.
-export const horizontalSections: HorizontalSectionData[] = [
+// 섹션 수(배열 길이), 카드 수(각 섹션의 cards 길이)는 여기 배열만 늘리면 자동으로
+// 반영됩니다. README '섹션 수, 카드 수 추가하는 방법' 참고.
+export const scrollGroups: ScrollGroupData[] = [
   {
-    id: 'section-a',
-    eyebrow: 'Vanilla JS',
+    id: 'group-industry',
+    eyebrow: 'Case Study',
     title: '산업별 도입 사례',
-    description: '외부 라이브러리 없이 직접 구현한 가로 스크롤 카드 섹션입니다.',
-    cards: buildCards('a', 9),
+    description: '산업별 맞춤 솔루션으로 성과를 낸 사례를 소개합니다.',
+    cards: buildCards('industry', '산업별 도입 사례', 5),
   },
   {
-    id: 'section-b',
-    eyebrow: 'GSAP ScrollTrigger',
+    id: 'group-client',
+    eyebrow: 'Client',
     title: '고객사 도입 사례',
-    description: 'GSAP ScrollTrigger의 pin + scrub으로 구현한 가로 스크롤 카드 섹션입니다.',
-    cards: buildCards('b', 7),
+    description: '다양한 규모의 고객사가 함께 만든 변화를 확인해보세요.',
+    cards: buildCards('client', '고객사 도입 사례', 4),
+  },
+  {
+    id: 'group-news',
+    eyebrow: 'News',
+    title: '기업 소식',
+    description: '새로운 가치를 만드는 이야기를 전해드립니다.',
+    cards: buildCards('news', '기업 소식', 6),
   },
 ]

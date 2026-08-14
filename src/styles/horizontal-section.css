@@ -1,10 +1,10 @@
-/* wrapper: 문서 흐름 상의 "스크롤 여유 공간"을 갖는 컨테이너. 높이는 JS(vanilla)가 인라인으로
-   설정하거나, GSAP ScrollTrigger가 자동 생성하는 pin-spacer가 대신 담당합니다. */
+/* wrapper: 문서 흐름 상의 "스크롤 여유 공간"을 갖는 컨테이너. 높이는 GSAP ScrollTrigger가
+   자동 생성하는 pin-spacer가 담당한다. */
 .h-scroll-wrapper {
   position: relative;
 }
 
-/* pin: 실제로 화면에 고정되는 블록. static/fixed/absolute 전환은 JS 쪽에서 처리한다. */
+/* pin: 실제로 화면에 고정되는 블록. */
 .h-scroll-pin {
   background: var(--color-bg);
   padding-block: 48px;
@@ -33,11 +33,20 @@
   max-width: 520px;
 }
 
-.h-scroll-header {
+/* 섹션(카드 그룹)마다 딸린 타이틀. 자기 섹션이 지나가는 동안은 카운터 스크롤로
+   좌측 padding 라인에 고정된 것처럼 보이다가(groupedScrollGSAP.ts), 섹션이 끝날
+   때만 카드처럼 화면 밖으로 밀려난다. */
+.h-scroll-section-header {
   margin-bottom: 32px;
+  will-change: transform;
+  /* 부모(.h-scroll-section)의 기본 align-items:stretch를 끈다 — 안 끄면 헤더가
+     섹션 전체 폭(카드 로우 폭)까지 늘어나서 카운터 스크롤 보정 여유가 0이 된다. */
+  align-self: flex-start;
 }
 
-/* PC: overflow hidden 뷰포트 안에서 track을 JS가 translateX로 움직입니다. */
+/* PC: 뷰포트 자체는 화면 끝까지 꽉 채운다(overflow:hidden으로 클리핑만). 좌우
+   padding은 뷰포트를 좁히는 대신 track의 시작/끝 위치에만 적용해서, 카드가 padding
+   안쪽 여백으로 사라지지 않고 화면 가장자리까지 찬 채로 스크롤되게 한다. */
 .h-scroll-viewport {
   overflow: hidden;
 }
@@ -45,7 +54,22 @@
 .h-scroll-track {
   display: flex;
   gap: 20px;
+  padding-inline: max(var(--container-pad), calc((100% - var(--container-max)) / 2));
   will-change: transform;
+}
+
+/* 트랙이 flex(align-items 기본값 stretch)라, 섹션마다 타이틀 길이가 달라도 모든
+   섹션의 높이가 자동으로 맞춰져서 카드 로우 시작 위치가 흔들리지 않는다. */
+.h-scroll-section {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+  padding: 0;
+}
+
+.h-scroll-section-cards {
+  display: flex;
+  gap: 20px;
 }
 
 .h-card {
@@ -78,14 +102,24 @@
   overflow: hidden;
 }
 
-/* Tablet / Mobile (1024px 이하): 스크롤 하이재킹을 끄고 네이티브 가로 스와이프 리스트로 전환합니다.
-   이유는 README '반응형 대응 방식' 참고. JS도 이 구간에서는 pin 로직을 아예 실행하지 않습니다. */
+/* Tablet / Mobile (1024px 이하): 스크롤 하이재킹을 끄고, 섹션을 세로로 쌓은 뒤
+   섹션별로 자기 카드 리스트만 네이티브 가로 스와이프로 보여준다. 이유는 README
+   '반응형 대응 방식' 참고. JS도 이 구간에서는 pin 로직을 아예 실행하지 않는다. */
 @media (max-width: 1024px) {
   .h-scroll-pin {
     padding-block: 32px;
   }
 
   .h-scroll-viewport {
+    overflow: visible;
+  }
+
+  .h-scroll-track {
+    flex-direction: column;
+    gap: 48px;
+  }
+
+  .h-scroll-section-cards {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scroll-snap-type: x proximity;
@@ -93,12 +127,12 @@
     cursor: grab;
   }
 
-  .h-scroll-viewport::-webkit-scrollbar {
+  .h-scroll-section-cards::-webkit-scrollbar {
     display: none;
   }
 
   /* 마우스 클릭+드래그 스크롤 중(dragScroll.ts): 스냅/커서/텍스트 선택을 잠시 끈다. */
-  .h-scroll-viewport.is-dragging {
+  .h-scroll-section-cards.is-dragging {
     cursor: grabbing;
     scroll-snap-type: none;
     user-select: none;
