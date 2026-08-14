@@ -79,6 +79,20 @@
   flex: 0 0 clamp(220px, 24vw, 320px);
 }
 
+.h-card__link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  border-radius: 20px;
+}
+
+/* 키보드 탭으로 포커스됐을 때만 보이는 표시. 마우스 클릭 시(:focus지만
+   :focus-visible은 아닌 경우)에는 안 나와서 불필요하게 거슬리지 않는다. */
+.h-card__link:focus-visible {
+  outline: 2px solid var(--color-text);
+  outline-offset: 4px;
+}
+
 .h-card__media {
   aspect-ratio: 4 / 3;
   border-radius: 20px;

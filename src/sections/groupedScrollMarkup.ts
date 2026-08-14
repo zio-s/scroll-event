@@ -22,14 +22,21 @@ function query<T extends HTMLElement>(root: ParentNode, selector: string): T {
   return el
 }
 
+// 카드 전체를 <a>로 감싼다 — 실제 서비스라면 카드 클릭 시 상세 페이지로 이동하는
+// 구조를 그대로 보여주기 위해서다. 이 데모에는 연결할 상세 페이지가 없어서
+// href="#"로 두고, buildGroupedScrollSection에서 클릭 시 페이지 최상단으로
+// 튀는 기본 동작만 막는다. <li>였을 때는 키보드 탭 순서에 아예 들어오지 않았는데,
+// <a>가 되면서 탭 포커스 + 스크린리더 접근성 이름(aria-label)을 갖게 된다.
 function cardMarkup(card: ScrollGroupData['cards'][number]): string {
   return `
     <li class="h-card">
-      <div class="h-card__media" style="background: linear-gradient(155deg, ${card.colorFrom}, ${card.colorTo})">
-        <span aria-hidden="true">${card.emoji}</span>
-      </div>
-      <p class="h-card__eyebrow">${card.eyebrow}</p>
-      <h3 class="h-card__title">${card.title}</h3>
+      <a class="h-card__link" href="#" aria-label="${card.title}">
+        <div class="h-card__media" style="background: linear-gradient(155deg, ${card.colorFrom}, ${card.colorTo})">
+          <span aria-hidden="true">${card.emoji}</span>
+        </div>
+        <p class="h-card__eyebrow">${card.eyebrow}</p>
+        <h3 class="h-card__title">${card.title}</h3>
+      </a>
     </li>
   `
 }
@@ -87,6 +94,14 @@ export function buildGroupedScrollSection(id: string, groups: ScrollGroupData[])
     cardsEl: query<HTMLElement>(sectionEl, '.h-scroll-section-cards'),
     data: groups[i],
   }))
+
+  // 상세 페이지가 없는 데모라 href="#"를 실제로 따라가면 페이지 최상단으로 튀어서
+  // 가로 스크롤 흐름이 끊긴 것처럼 보인다. 클릭 시 기본 이동만 막고, <a> 자체가
+  // 주는 탭 포커스/스크린리더 접근성 이름은 그대로 유지한다.
+  track.addEventListener('click', (e) => {
+    const link = (e.target as HTMLElement).closest('.h-card__link')
+    if (link) e.preventDefault()
+  })
 
   return { wrapper, pin, viewport, track, groups: groupRefs }
 }
